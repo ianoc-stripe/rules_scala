@@ -20,8 +20,11 @@ maven_jar(
   sha1 = "e5b3e2753d0817b622c32aedcb888bcf39e275b4")
 
 
+BAZEL_VERSION="0.4.3"
+BAZEL_VERSION_SHA="cbd2ab580181c17317cf18b2bf825bcded2d97cab01cd5b5fe4f4d520b64f90f"
+
 git_repository(
   name = "io_bazel",
   remote = "git://github.com/bazelbuild/bazel.git",
-  tag = "0.3.2",
+  tag = "df16be605a228157d43db75a9a4508ad8634dd90",
 )
