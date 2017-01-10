@@ -26,5 +26,5 @@ BAZEL_VERSION_SHA="cbd2ab580181c17317cf18b2bf825bcded2d97cab01cd5b5fe4f4d520b64f
 git_repository(
   name = "io_bazel",
   remote = "git://github.com/bazelbuild/bazel.git",
-  tag = "df16be605a228157d43db75a9a4508ad8634dd90",
+  tag = "1d2fb1ffb09bb58a3a697ef730c5e41de3ed258a",
 )
