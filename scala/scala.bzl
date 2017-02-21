@@ -496,14 +496,14 @@ def _scala_test_impl(ctx):
 
 _implicit_deps = {
   "_ijar": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:ijar"), single_file=True, allow_files=True),
-  "_scalac": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
+  "_scalac": attr.label(executable=True, cfg="data", default=Label("//src/java/io/bazel/rulesscala/scalac"), allow_files=True),
   "_scalalib": attr.label(default=Label("@scala//:lib/scala-library.jar"), single_file=True, allow_files=True),
   "_scalacompiler": attr.label(default=Label("@scala//:lib/scala-compiler.jar"), single_file=True, allow_files=True),
   "_scalareflect": attr.label(default=Label("@scala//:lib/scala-reflect.jar"), single_file=True, allow_files=True),
   "_java": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:java"), single_file=True, allow_files=True),
   "_javac": attr.label(executable=True, cfg="host", default=Label("@bazel_tools//tools/jdk:javac"), single_file=True, allow_files=True),
-  "_jar": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"), allow_files=True),
-  "_jar_bin": attr.label(executable=True, cfg="host", default=Label("//src/java/io/bazel/rulesscala/jar:binary")),
+  "_jar": attr.label(executable=True, cfg="data", default=Label("//src/java/io/bazel/rulesscala/jar:binary_deploy.jar"), allow_files=True),
+  "_jar_bin": attr.label(executable=True, cfg="data", default=Label("//src/java/io/bazel/rulesscala/jar:binary")),
   "_jdk": attr.label(default=Label("//tools/defaults:jdk"), allow_files=True),
 }
 

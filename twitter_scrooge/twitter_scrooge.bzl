@@ -211,7 +211,7 @@ scrooge_scala_srcjar = rule(
         "jvm_flags": attr.string_list(),  # the jvm flags to use with the generator
         "_pluck_scrooge_scala": attr.label(
           executable=True,
-          cfg="host",
+          cfg="data",
           default=Label("//src/scala/scripts:generator"),
           allow_files=True),
     },

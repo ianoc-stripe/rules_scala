@@ -1,6 +1,6 @@
 startup --host_jvm_args="-Dbazel.DigestFunction=SHA1"
 build --watchfs
---rest_cache_url=http://localhost:1337
---experimental_multi_threaded_digest
---spawn_strategy=remote
---jobs=4
+build --rest_cache_url=http://localhost:1337
+build --experimental_multi_threaded_digest
+build --spawn_strategy=remote
+build --jobs=4
