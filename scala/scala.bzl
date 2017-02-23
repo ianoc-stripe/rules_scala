@@ -229,20 +229,20 @@ SourceJars: {srcjars}
 
 def _compile_or_empty(ctx, jars, srcjars, buildijar):
     # We assume that if a srcjar is present, it is not empty
-    if len(ctx.files.srcs) + len(srcjars) == 0:
-        _build_nosrc_jar(ctx, buildijar)
-        #  no need to build ijar when empty
-        return struct(ijar=ctx.outputs.jar, class_jar=ctx.outputs.jar)
+    # if len(ctx.files.srcs) + len(srcjars) == 0:
+    #     _build_nosrc_jar(ctx, buildijar)
+    #     #  no need to build ijar when empty
+    #     return struct(ijar=ctx.outputs.jar, class_jar=ctx.outputs.jar)
+    # else:
+    _compile(ctx, jars, srcjars, buildijar)
+    ijar = None
+    if buildijar:
+        ijar = ctx.outputs.ijar
     else:
-        _compile(ctx, jars, srcjars, buildijar)
-        ijar = None
-        if buildijar:
-            ijar = ctx.outputs.ijar
-        else:
-            #  macro code needs to be available at compile-time,
-            #  so set ijar == jar
-            ijar = ctx.outputs.jar
-        return struct(ijar=ijar, class_jar=ctx.outputs.jar)
+        #  macro code needs to be available at compile-time,
+        #  so set ijar == jar
+        ijar = ctx.outputs.jar
+    return struct(ijar=ijar, class_jar=ctx.outputs.jar)
 
 def _build_deployable(ctx, jars):
     # the _jar_bin program we call below expects one optional argument:

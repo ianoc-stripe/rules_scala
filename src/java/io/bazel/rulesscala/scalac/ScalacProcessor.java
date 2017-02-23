@@ -44,26 +44,7 @@ class ScalacProcessor implements Processor {
     }
   }
 
-  public void processRequest(List<String> args) throws Exception {
-    Path tmpPath = null;
-    try {
-      CompileOptions ops = new CompileOptions(args);
-
-      Path outputPath = FileSystems.getDefault().getPath(ops.outputName);
-      tmpPath = Files.createTempDirectory(outputPath.getParent(), "tmp");
-      String[] constParams = {
-        "-classpath",
-        ops.classpath,
-        "-d",
-        tmpPath.toString()
-        };
-
-      String[] compilerArgs = GenericWorker.merge(
-        ops.scalaOpts,
-        ops.pluginArgs,
-        constParams,
-        extractSourceJars(ops, outputPath.getParent()));
-
+  private void runScalaCompiler(CompileOptions ops, String[] compilerArgs) throws Exception {
       MainClass comp = new MainClass();
       long start = System.currentTimeMillis();
 
@@ -88,7 +69,34 @@ class ScalacProcessor implements Processor {
           reporter.printSummary();
           reporter.flush();
           throw new RuntimeException("Build failed");
-      } else {
+      }
+  }
+
+  public void processRequest(List<String> args) throws Exception {
+    Path tmpPath = null;
+    try {
+      CompileOptions ops = new CompileOptions(args);
+
+      Path outputPath = FileSystems.getDefault().getPath(ops.outputName);
+      tmpPath = Files.createTempDirectory(outputPath.getParent(), "tmp");
+      String[] constParams = {
+        "-classpath",
+        ops.classpath,
+        "-d",
+        tmpPath.toString()
+        };
+
+      String[] files = extractSourceJars(ops, outputPath.getParent());
+      if(files.length > 0) {
+         String[] compilerArgs = GenericWorker.merge(
+        ops.scalaOpts,
+        ops.pluginArgs,
+        constParams,
+        files);
+         runScalaCompiler(ops, compilerArgs);
+      }
+
+
         /**
          * See if there are java sources to compile
          */
@@ -123,7 +131,6 @@ class ScalacProcessor implements Processor {
             throw new RuntimeException("ijar process failed!");
           }
         }
-      }
     }
     finally {
       removeTmp(tmpPath);
@@ -140,9 +147,9 @@ class ScalacProcessor implements Processor {
       }
     }
     String[] files = GenericWorker.appendToString(opts.files, sourceFiles);
-    if(files.length == 0) {
-      throw new RuntimeException("Must have input files from either source jars or local files.");
-    }
+    // if(files.length == 0) {
+    //   throw new RuntimeException("Must have input files from either source jars or local files.");
+    // }
     return files;
   }
 
