@@ -139,6 +139,7 @@ def _gen_scrooge_srcjar_impl(ctx):
     executable = ctx.executable._pluck_scrooge_scala,
     inputs = list(remote_jars) +
         list(only_transitive_thrift_srcs) +
+        list(remote_self_jars) +
         list(immediate_thrift_srcs) +
         [argfile],
     outputs = [ctx.outputs.srcjar],
