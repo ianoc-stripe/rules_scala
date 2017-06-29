@@ -127,7 +127,7 @@ def _gen_scrooge_srcjar_impl(ctx):
       only_transitive_thrift_srcs += [src]
 
   # We want to ensure that the thrift sources which we do not own (but need
-  # in order to generate code) have targets which will compile them.
+  # in order to generate code) have targets which will compile them.d
   _assert_set_is_subset(only_transitive_thrift_srcs, transitive_owned_srcs)
 
   path_content = "\n".join([_colon_paths(ps) for ps in [immediate_thrift_srcs, only_transitive_thrift_srcs, remote_jars, remote_self_jars]])
