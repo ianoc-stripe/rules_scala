@@ -6,6 +6,7 @@ import java.util.Map;
 
 public class CompileOptions {
   final public String outputName;
+  final public String semanticDbOutputName;
   final public String manifestPath;
   final public String[] scalaOpts;
   final public boolean printCompileTime;
@@ -32,6 +33,8 @@ public class CompileOptions {
     Map<String, String> argMap = buildArgMap(args);
 
     outputName = getOrError(argMap, "JarOutput", "Missing required arg JarOutput");
+    semanticDbOutputName = getOrError(argMap, "SemanticDBOutput", "Missing required arg SemanticDBOutput");
+
     manifestPath = getOrError(argMap, "Manifest", "Missing required arg Manifest");
 
     scalaOpts = getCommaList(argMap, "ScalacOpts");

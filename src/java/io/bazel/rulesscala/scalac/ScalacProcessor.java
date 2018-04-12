@@ -6,6 +6,7 @@ import io.bazel.rulesscala.worker.Processor;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -17,6 +18,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import scala.tools.nsc.Driver;
@@ -45,6 +47,7 @@ class ScalacProcessor implements Processor {
       CompileOptions ops = new CompileOptions(args);
 
       Path outputPath = FileSystems.getDefault().getPath(ops.outputName);
+      Path semanticDBPath = FileSystems.getDefault().getPath(ops.semanticDbOutputName);
       tmpPath = Files.createTempDirectory(outputPath.getParent(), "tmp");
 
       List<File> jarFiles = extractSourceJars(ops, outputPath.getParent());
@@ -91,6 +94,16 @@ class ScalacProcessor implements Processor {
         tmpPath.toString()
       };
       JarCreator.buildJar(jarCreatorArgs);
+
+// semanticDBPath
+      File outputSemnaticDbFile = semanticDBPath.toFile();
+      Optional<File> createdSemanticDb = findFileExtension(tmpPath);
+
+      if(createdSemanticDb.isPresent()) {
+        copyFile(createdSemanticDb.get(), outputSemnaticDbFile);
+      } else {
+        touch(outputSemnaticDbFile);
+      }
 
       /**
        * Now build the output ijar
@@ -367,4 +380,40 @@ class ScalacProcessor implements Processor {
       extractJar(jarPath, dest.toString(), null);
     }
   }
+
+  private static void touch(File file) throws IOException {
+    if (!file.exists()) {
+       new FileOutputStream(file).close();
+    }
+  }
+
+  private static void copyFile(File source, File dest) throws IOException {
+    FileChannel sourceChannel = null;
+    FileChannel destChannel = null;
+    try {
+      sourceChannel = new FileInputStream(source).getChannel();
+      destChannel = new FileOutputStream(dest).getChannel();
+      destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+    }finally{
+      sourceChannel.close();
+      destChannel.close();
+    }
+  }
+
+  private static Optional<File> findFileExtension(Path directory) throws IOException {
+    File[] matchingFiles = Arrays.stream(
+      directory.toFile().listFiles()
+    ).filter(x -> !x.isDirectory() && x.getPath().endsWith(".semanticdb")).toArray(File[]::new);
+
+    if(matchingFiles.length > 1) {
+      throw new IOException("Too many semanticdb files found");
+    } else {
+      if(matchingFiles.length == 1) {
+        return Optional.of(matchingFiles[0]);
+      } else {
+        return Optional.empty();
+      }
+    }
+  }
+
 }

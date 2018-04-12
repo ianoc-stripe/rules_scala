@@ -85,6 +85,7 @@ rm -f {jar_output}
 {zipper} c {jar_output} @{path}
 # ensures that empty src targets still emit a statsfile
 touch {statsfile}
+touch {semantic_db}
 """ + ijar_cmd
 
     cmd = cmd.format(
@@ -92,9 +93,10 @@ touch {statsfile}
         jar_output=ctx.outputs.jar.path,
         zipper=ctx.executable._zipper.path,
         statsfile=ctx.outputs.statsfile.path,
+        semantic_db=ctx.outputs.semantic_db.path
         )
 
-    outs = [ctx.outputs.jar, ctx.outputs.statsfile]
+    outs = [ctx.outputs.jar, ctx.outputs.statsfile, ctx.outputs.semantic_db]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
 
@@ -206,8 +208,10 @@ ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
 DependencyAnalyzerMode: {dependency_analyzer_mode}
 StatsfileOutput: {statsfile_output}
+SemanticDBOutput: {semantic_db_out}
 """.format(
         out=ctx.outputs.jar.path,
+        semantic_db_out=ctx.outputs.semantic_db.path,
         manifest=ctx.outputs.manifest.path,
         scala_opts=",".join(scalacopts),
         print_compile_time=ctx.attr.print_compile_time,
@@ -237,7 +241,7 @@ StatsfileOutput: {statsfile_output}
 
     ctx.actions.write(output=argfile, content=scalac_args + optional_scalac_args)
 
-    outs = [ctx.outputs.jar, ctx.outputs.statsfile]
+    outs = [ctx.outputs.jar, ctx.outputs.statsfile, ctx.outputs.semantic_db]
     if buildijar:
         outs.extend([ctx.outputs.ijar])
     ins = (list(compiler_classpath_jars) +
@@ -656,7 +660,8 @@ def create_scala_provider(
     transitive_runtime_jars,
     deploy_jar,
     full_jars,
-    statsfile):
+    statsfile,
+    semantic_db):
 
     formatted_for_intellij = [struct(
         class_jar = jar,
@@ -670,6 +675,7 @@ def create_scala_provider(
         deploy_jar = deploy_jar,
         jars = formatted_for_intellij,
         statsfile = statsfile,
+        semantic_db = semantic_db
     )
     # Note that, internally, rules only care about compile_jars and transitive_runtime_jars
     # in a similar manner as the java_library and JavaProvider
@@ -721,7 +727,8 @@ def _lib(ctx, non_macro_lib):
         transitive_runtime_jars = transitive_rjars,
         deploy_jar = ctx.outputs.deploy_jar,
         full_jars = outputs.full_jars,
-        statsfile = ctx.outputs.statsfile)
+        statsfile = ctx.outputs.statsfile,
+        semantic_db = ctx.outputs.semantic_db)
 
     java_provider = create_java_provider(scalaattr, jars.transitive_compile_jars)
 
@@ -777,7 +784,8 @@ def _scala_binary_common(ctx, cjars, rjars, transitive_compile_time_jars, jars2l
       transitive_runtime_jars = rjars,
       deploy_jar = ctx.outputs.deploy_jar,
       full_jars = outputs.full_jars,
-      statsfile = ctx.outputs.statsfile)
+      statsfile = ctx.outputs.statsfile,
+      semantic_db = ctx.outputs.semantic_db)
 
   java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
 
@@ -998,6 +1006,7 @@ common_outputs = {
   "deploy_jar": "%{name}_deploy.jar",
   "manifest": "%{name}_MANIFEST.MF",
   "statsfile": "%{name}.statsfile",
+  "semantic_db": "%{name}.semanticdb"
 }
 
 library_outputs = {}
