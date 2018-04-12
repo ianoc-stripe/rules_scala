@@ -15,10 +15,12 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.function.Function;
 import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
+
 
 import org.apache.commons.io.IOUtils;
 import scala.tools.nsc.Driver;
@@ -120,7 +122,7 @@ class ScalacProcessor implements Processor {
       }
     }
     finally {
-      removeTmp(tmpPath);
+      // removeTmp(tmpPath);
     }
   }
 
@@ -400,11 +402,37 @@ class ScalacProcessor implements Processor {
     }
   }
 
-  private static Optional<File> findFileExtension(Path directory) throws IOException {
-    File[] matchingFiles = Arrays.stream(
-      directory.toFile().listFiles()
-    ).filter(x -> !x.isDirectory() && x.getPath().endsWith(".semanticdb")).toArray(File[]::new);
+  private static Stream<File> recursiveFileStream(File target) throws IOException {
+    Stream<File> selfStream = Stream.of(target);
 
+    Function<File, Stream<File>> f =
+    (File e) -> {
+      try {
+           return recursiveFileStream(e);
+        }
+        catch(IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+      };
+
+    if(target.isDirectory()) {
+      Stream<File> childStream = Arrays.stream(
+        target.listFiles()
+      ).flatMap(f);
+
+      return Stream.concat(selfStream, childStream);
+    } else {
+      return selfStream;
+    }
+  }
+
+  private static Optional<File> findFileExtension(Path directory) throws IOException {
+    File[] matchingFiles = recursiveFileStream(directory.toFile()).
+      filter(x -> !x.isDirectory() && x.getPath().endsWith(".semanticdb")).toArray(File[]::new);
+
+    Arrays.stream(directory.toFile().listFiles()).forEach(e ->
+      System.out.println(e.getPath())
+    );
     if(matchingFiles.length > 1) {
       throw new IOException("Too many semanticdb files found");
     } else {
