@@ -128,6 +128,7 @@ def _gen_scrooge_srcjar_impl(ctx):
   remote_jars = []
   for target in ctx.attr.remote_jars:
     remote_jars.append(depset(_jar_filetype.filter(target.files)))
+
   # deduplicate these
   remote_jars = depset(transitive = remote_jars).to_list()
 
