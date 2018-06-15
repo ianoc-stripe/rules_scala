@@ -377,6 +377,7 @@ def _build_deployable(ctx, jars_list):
       outputs = [ctx.outputs.deploy_jar],
       executable = ctx.executable._singlejar,
       mnemonic = "ScalaDeployJar",
+      execution_requirements = {"supports-workers": "1"},
       progress_message = "scala deployable %s" % ctx.label,
       arguments = args)
 
