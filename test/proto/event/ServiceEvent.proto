@@ -1,0 +1,7 @@
+syntax = "proto2";
+option java_package = "test.proto";
+
+message ServiceEvent {
+  optional uint32 e = 1;
+  optional bool f = 2;
+}

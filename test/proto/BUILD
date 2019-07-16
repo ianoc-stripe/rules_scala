@@ -74,6 +74,41 @@ proto_library(
     ],
 )
 
+proto_library(
+    name = "A",
+    srcs = [ "event/A.proto" ],
+    deps = [
+        "@com_google_protobuf//:wrappers_proto",
+        "@com_google_protobuf//:timestamp_proto",
+    ],
+)
+
+proto_library(
+    name = "B",
+    srcs = [ "event/B.proto" ],
+    deps = [
+        "@com_google_protobuf//:timestamp_proto",
+        "@com_google_protobuf//:wrappers_proto",
+    ],
+)
+
+proto_library(
+    name = "service_events_proto",
+    visibility = [ "//visibility:public" ],
+    srcs = [ "event/ServiceEvent.proto" ],
+    deps = [
+        ":A",
+        ":B",
+    ],
+)
+
+scalapb_proto_library(
+    name = "service_events_scala_proto",
+    visibility = ["//visibility:public"],
+    deps = [ ":service_events_proto" ],
+)
+
+
 scalapb_proto_library(
     name = "test_external_dep",
     visibility = ["//visibility:public"],
